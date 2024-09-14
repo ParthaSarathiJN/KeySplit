@@ -9,17 +9,18 @@ public abstract class BasePacket {
     private byte operation;
     private byte[] uuidByteArr;
 
-    public BasePacket(byte operation, String key) {
+    public BasePacket(byte operation) {
         this.operation = operation;
         this.uuidByteArr = generateUUID();
         this.length = calculateLength();
     }
 
-    public void fromByetAray(byte[] data) {
+    public void fromByteArray(byte[] data) {
         ByteBuffer buffer = ByteBuffer.wrap(data);
         this.length = buffer.getInt();
         this.operation = buffer.get();
-        this.uuidByteArr = buffer.array();
+        this.uuidByteArr = new byte[16];
+        buffer.get(this.uuidByteArr);
     }
 
     public int getLength() {
@@ -47,7 +48,7 @@ public abstract class BasePacket {
         this.uuidByteArr = uuidByteArr;
     }
 
-    private int calculateLength() {
+    public int calculateLength() {
         return 4 + 1 + 16;
     }
 
