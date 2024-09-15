@@ -8,6 +8,7 @@ public abstract class BasePacket {
     private int length;
     private byte operation;
     private byte[] uuidByteArr;
+    protected ByteBuffer buffer;
 
     public BasePacket(byte operation) {
         this.operation = operation;
@@ -15,20 +16,27 @@ public abstract class BasePacket {
         this.length = calculateLength();
     }
 
-    public void fromByteArray(byte[] data) {
+    protected void fromByteArray(byte[] data) {
         ByteBuffer buffer = ByteBuffer.wrap(data);
-        this.length = buffer.getInt();
-        this.operation = buffer.get();
-        this.uuidByteArr = new byte[16];
-        buffer.get(this.uuidByteArr);
+        setLength(buffer.getInt());
+        setOperation(buffer.get());
+        setUuidByteArr(buffer);
     }
 
     public int getLength() {
         return length;
     }
 
+    private void setLength(int length) {
+        this.length = length;
+    }
+
     public byte getOperation() {
         return operation;
+    }
+
+    private void setOperation(byte operation) {
+        this.operation = operation;
     }
 
     public UUID getUuid() {
@@ -36,20 +44,14 @@ public abstract class BasePacket {
         return new UUID(buffer.getLong(), buffer.getLong());
     }
 
-    public void setLength(int length) {
-        this.length = length;
-    }
-
-    public void setOperation(byte operation) {
-        this.operation = operation;
-    }
-
-    public void setUuidByteArr(byte[] uuidByteArr) {
+    private void setUuidByteArr(ByteBuffer buffer) {
+        byte[] uuidByteArr = new byte[16];
+        buffer.get(uuidByteArr);
         this.uuidByteArr = uuidByteArr;
     }
 
-    public int calculateLength() {
-        return 4 + 1 + 16;
+    protected int calculateLength() {
+        return 4 + 1 + 1 + 16;
     }
 
     private byte[] generateUUID() {

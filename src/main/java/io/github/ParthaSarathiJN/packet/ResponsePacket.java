@@ -1,46 +1,30 @@
 package io.github.ParthaSarathiJN.packet;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Objects;
+public abstract class ResponsePacket extends BasePacket {
 
-public class ResponsePacket extends BasePacket {
+    private int status;
 
-    private byte status;
-    private String errorMessage;
-
-    public ResponsePacket(byte operation, byte status, String errorMessage) {
+    public ResponsePacket(byte operation, int status) {
         super(operation);
         this.status = status;
-        this.errorMessage = errorMessage;
     }
 
     @Override
     public void fromByteArray(byte[] data) {
         super.fromByteArray(data);
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        this.status = buffer.get();
-        this.errorMessage = Arrays.toString(buffer.array());
+        setStatus(buffer.get());
     }
 
-    public byte getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(byte status) {
+    public void setStatus(int status) {
         this.status = status;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 
     @Override
     public int calculateLength() {
-        return super.calculateLength() + 1 + (errorMessage.length() * 2);
+        return super.calculateLength() + 4;
     }
 }

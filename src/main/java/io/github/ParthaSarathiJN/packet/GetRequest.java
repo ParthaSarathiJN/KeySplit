@@ -1,7 +1,11 @@
 package io.github.ParthaSarathiJN.packet;
 
-public class GetRequest extends BasePacket{
+import static io.github.ParthaSarathiJN.common.Constants.GET_REQ;
 
+public class GetRequest extends RequestPacket {
 
+    public GetRequest(byte[] keyBytes) {
+        super(GET_REQ, keyBytes);
+    }
 
 }

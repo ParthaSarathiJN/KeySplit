@@ -1,46 +1,66 @@
 package io.github.ParthaSarathiJN.packet;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Objects;
 
-public class RequestPacket extends BasePacket {
+public abstract class RequestPacket extends BasePacket {
 
-    private String key;
     private long timestamp;
+    private int keyLength;
+    private byte[] keyBytes;
 
-    public RequestPacket(byte operation, String key) {
+    public RequestPacket(byte operation, byte[] keyBytes) {
         super(operation);
-        this.timestamp = System.currentTimeMillis();
-        this.key = Objects.requireNonNull(key);
+        this.timestamp = getCurrentTimestamp();
+        this.keyLength = Objects.requireNonNull(keyBytes).length;
+        this.keyBytes = keyBytes;
     }
 
     @Override
-    public void fromByteArray(byte[] data) {
+    protected void fromByteArray(byte[] data) {
         super.fromByteArray(data);
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        this.timestamp = buffer.getLong();
-        this.key = Arrays.toString(buffer.array());
-    }
-
-    public String getKey() {
-        return key;
+        setTimestamp(buffer.getLong());
+        setKeyLength(buffer.getInt());
+        setKeyBytes(buffer, keyLength);
     }
 
     public long getTimestamp() {
         return timestamp;
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
+    public int getKeyLength() {
+        return keyLength;
+    }
+
+    public void setKeyLength(int keyLength) {
+        this.keyLength = keyLength;
+    }
+
+    public byte[] getKeyBytes() {
+        return keyBytes;
+    }
+
+    public void setKeyBytes(byte[] keyBytes) {
+        this.keyBytes = keyBytes;
+        this.keyLength = keyBytes.length;
+    }
+
+    private void setKeyBytes(ByteBuffer buffer, int keyLength) {
+        byte[] keyBytes = new byte[keyLength];
+        buffer.get(keyBytes);
+        this.keyBytes = keyBytes;
+    }
+
+    private long getCurrentTimestamp() {
+        return System.currentTimeMillis();
+    }
+
     @Override
-    public int calculateLength() {
-        return super.calculateLength() + 16 + (key.length() * 2);
+    protected int calculateLength() {
+        return super.calculateLength() + 8 + 4 + keyLength;
     }
 }

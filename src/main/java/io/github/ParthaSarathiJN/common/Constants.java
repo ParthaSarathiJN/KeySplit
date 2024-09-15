@@ -11,4 +11,12 @@ public class Constants {
     public static final byte INSERT_RESP = -2;
     public static final byte UPDATE_RESP = -3;
     public static final byte DELETE_RESP = -4;
+
+    public static final byte ASCII_ENC = 0;
+    public static final byte UTF_8_ENC = 1;
+    public static final byte UTF_16_ENC = 2;
+    public static final byte UTF_32_ENC = 3;
+    public static final byte UTF_64_ENC = 4;
+    public static final byte ISO_8859_1_ENC = 5;
+    public static final byte BINARY_ENC = 6;
 }
