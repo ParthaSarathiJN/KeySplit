@@ -24,7 +24,7 @@ public abstract class ResponsePacket extends BasePacket {
     }
 
     @Override
-    public int calculateLength() {
+    protected int calculateLength() {
         return super.calculateLength() + 4;
     }
 }

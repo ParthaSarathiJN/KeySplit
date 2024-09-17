@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public abstract class BasePacket {
 
-    private int length;
+    protected int length;
     private byte operation;
     private byte[] uuidByteArr;
     protected ByteBuffer buffer;
@@ -13,7 +13,6 @@ public abstract class BasePacket {
     public BasePacket(byte operation) {
         this.operation = operation;
         this.uuidByteArr = generateUUID();
-        this.length = calculateLength();
     }
 
     protected void fromByteArray(byte[] data) {
@@ -51,7 +50,7 @@ public abstract class BasePacket {
     }
 
     protected int calculateLength() {
-        return 4 + 1 + 1 + 16;
+        return 4 + 1 + 16;
     }
 
     private byte[] generateUUID() {

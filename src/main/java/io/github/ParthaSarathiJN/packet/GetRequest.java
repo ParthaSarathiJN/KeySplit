@@ -6,6 +6,7 @@ public class GetRequest extends RequestPacket {
 
     public GetRequest(byte[] keyBytes) {
         super(GET_REQ, keyBytes);
+        this.length = calculateLength();
     }
 
 }

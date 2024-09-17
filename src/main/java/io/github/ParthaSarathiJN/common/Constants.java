@@ -12,6 +12,9 @@ public class Constants {
     public static final byte UPDATE_RESP = -3;
     public static final byte DELETE_RESP = -4;
 
+    public static final byte NO_ERROR = 0;
+    public static final byte ERROR = 1;
+
     public static final byte ASCII_ENC = 0;
     public static final byte UTF_8_ENC = 1;
     public static final byte UTF_16_ENC = 2;

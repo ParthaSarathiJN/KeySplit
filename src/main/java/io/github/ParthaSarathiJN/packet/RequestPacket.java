@@ -21,7 +21,7 @@ public abstract class RequestPacket extends BasePacket {
         super.fromByteArray(data);
         setTimestamp(buffer.getLong());
         setKeyLength(buffer.getInt());
-        setKeyBytes(buffer, keyLength);
+        setKeyBytes(buffer);
     }
 
     public long getTimestamp() {
@@ -49,7 +49,7 @@ public abstract class RequestPacket extends BasePacket {
         this.keyLength = keyBytes.length;
     }
 
-    private void setKeyBytes(ByteBuffer buffer, int keyLength) {
+    private void setKeyBytes(ByteBuffer buffer) {
         byte[] keyBytes = new byte[keyLength];
         buffer.get(keyBytes);
         this.keyBytes = keyBytes;
