@@ -44,11 +44,6 @@ public abstract class RequestPacket extends BasePacket {
         return keyBytes;
     }
 
-    public void setKeyBytes(byte[] keyBytes) {
-        this.keyBytes = keyBytes;
-        this.keyLength = keyBytes.length;
-    }
-
     private void setKeyBytes(ByteBuffer buffer) {
         byte[] keyBytes = new byte[keyLength];
         buffer.get(keyBytes);
