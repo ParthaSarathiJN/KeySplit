@@ -49,12 +49,12 @@ public abstract class PDU {
 //		return pduHeader;
 //	}
 
-	public PDU createImplPdu(byte operation, ByteBuffer buffer, int keyLength) {
-		switch (operation) {
-			case GET_REQ:
-				byte[] keyBytes = new byte[keyLength];
-				buffer.get(keyBytes);
-				return new GetRequest(keyBytes);
+//	public PDU createImplPdu(byte operation, ByteBuffer buffer, int keyLength) {
+//		switch (operation) {
+//			case GET_REQ:
+//				byte[] keyBytes = new byte[keyLength];
+//				buffer.get(keyBytes);
+//				return new GetRequest(keyBytes);
 //			case INSERT_REQ:
 //				return new InsertRequest();
 //			case UPDATE_REQ:
@@ -69,9 +69,9 @@ public abstract class PDU {
 //				return new UpdateResponse();
 //			case DELETE_RESP:
 //				return new DeleteResponse();
-			default:
-				throw new IllegalArgumentException("Unknown operation: " + operation);
-		}
-	}
+//			default:
+//				throw new IllegalArgumentException("Unknown operation: " + operation);
+//		}
+//	}
 
 }

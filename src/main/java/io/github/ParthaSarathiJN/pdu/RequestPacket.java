@@ -60,4 +60,8 @@ public class RequestPacket extends PDU {
     private long getCurrentTimestamp() {
         return System.currentTimeMillis();
     }
+
+    public int calculateLength() {
+        return 12 + keyLength;
+    }
 }
