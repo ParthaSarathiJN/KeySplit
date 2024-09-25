@@ -2,17 +2,21 @@ package io.github.ParthaSarathiJN.pdu;
 
 import java.nio.ByteBuffer;
 
-public class ResponsePacket extends PDU {
+public class ResponsePacket implements PDUPacket {
 
     private int status;
 
-//    public ResponsePacket(byte operation) {
-//        super(operation);
-//    }
+    public ResponsePacket() {
+    }
+
+    public ResponsePacket(int status) {
+        this.status = status;
+    }
 
     public ByteBuffer getData() {
         ByteBuffer buffer = ByteBuffer.allocate(4);
         buffer.putInt(getStatus());
+        buffer.flip();
         return buffer;
     }
 
@@ -26,5 +30,9 @@ public class ResponsePacket extends PDU {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public int calculateLength() {
+        return 4;
     }
 }

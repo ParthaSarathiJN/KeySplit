@@ -3,7 +3,7 @@ package io.github.ParthaSarathiJN.pdu;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
-public class PDUHeader extends PDU {
+public class PDUHeader implements PDUPacket {
 
     protected int length;
     private byte operation;
@@ -15,12 +15,10 @@ public class PDUHeader extends PDU {
 
     public ByteBuffer getData() {
         ByteBuffer buffer = ByteBuffer.allocate(21);
-        System.out.println("Length: " + length);
-        System.out.println("Operation: " + operation);
-        System.out.println("UUID byte array length: " + uuidByteArr.length);
         buffer.putInt(getLength());
         buffer.put(getOperation());
         buffer.put(getUuidByteArr());
+        buffer.flip();
         return buffer;
     }
 

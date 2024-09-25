@@ -2,11 +2,14 @@ package io.github.ParthaSarathiJN.pdu;
 
 import java.nio.ByteBuffer;
 
-public class RequestPacket extends PDU {
+public class RequestPacket implements PDUPacket {
 
     private long timestamp;
     private int keyLength;
     private byte[] keyBytes;
+
+    public RequestPacket() {
+    }
 
     public RequestPacket(byte[] keyBytes) {
         this.timestamp = getCurrentTimestamp();
@@ -20,6 +23,9 @@ public class RequestPacket extends PDU {
         buffer.putLong(getTimestamp());
         buffer.putInt(getKeyLength());
         buffer.put(keyBytes);
+        System.out.println("Serialized keyLength: " + keyLength);
+        System.out.println("Serialized keyBytes: " + new String(keyBytes));
+        buffer.flip();
         return buffer;
     }
 
@@ -27,8 +33,14 @@ public class RequestPacket extends PDU {
     public void setData(ByteBuffer buffer) {
         this.timestamp = buffer.getLong();
         this.keyLength = buffer.getInt();
-        keyBytes = new byte[keyLength];
-        buffer.get(keyBytes);
+        System.out.println("Deserialized keyLength: " + this.keyLength);
+        if (keyLength > 0) {
+            this.keyBytes = new byte[keyLength];
+            buffer.get(this.keyBytes);      // Deserialize key bytes
+            System.out.println("Deserialized keyBytes: " + new String(this.keyBytes));
+        } else {
+            keyBytes = new byte[0];  // Handle empty case
+        }
     }
 
     public long getTimestamp() {

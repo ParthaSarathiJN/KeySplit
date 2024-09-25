@@ -6,7 +6,6 @@ import io.github.ParthaSarathiJN.pdu.RequestPacket;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class RequestClient {
 
@@ -21,7 +20,7 @@ public class RequestClient {
 			pduHeader.setUuidByteArr(ByteBuffer.wrap(new byte[16]));  // Example UUID
 
 			// Create and set RequestPacket
-			byte[] keyBytes = "exampleKeyPartha".getBytes();  // Example key
+			byte[] keyBytes = "123exampleKey".getBytes();  // Example key
 			RequestPacket requestPacket = new RequestPacket(keyBytes);
 
 			pduHeader.setLength(requestPacket.calculateLength() + 21);
