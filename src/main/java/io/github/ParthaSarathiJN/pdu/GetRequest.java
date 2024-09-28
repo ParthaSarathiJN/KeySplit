@@ -1,13 +1,26 @@
 package io.github.ParthaSarathiJN.pdu;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.ByteBuffer;
 
 import static io.github.ParthaSarathiJN.common.Constants.GET_REQ;
 
 public class GetRequest implements PDUPacket {
 
-    public GetRequest() {
-    }
+	private static final Logger logger = LoggerFactory.getLogger(GetRequest.class);
+
+	private PDU pdu;
+
+    public GetRequest() {}
+
+	public GetRequest(byte[] keyBytes) {
+		PDUHeader pduHeader = new PDUHeader(GET_REQ);
+		PDUBase pduBase = new RequestPacket(keyBytes);
+		pduHeader.setLength(pduHeader.calculateLength() + pduBase.calculateLength() + this.calculateLength());
+		this.pdu = new PDU(pduHeader, pduBase, this);
+	}
 
 	@Override
 	public ByteBuffer getData() {
@@ -21,5 +34,9 @@ public class GetRequest implements PDUPacket {
 
 	public int calculateLength() {
 		return 0;
+	}
+
+	public PDU getPDU() {
+		return this.pdu;
 	}
 }

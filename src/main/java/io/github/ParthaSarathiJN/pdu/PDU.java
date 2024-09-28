@@ -1,5 +1,8 @@
 package io.github.ParthaSarathiJN.pdu;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -10,9 +13,13 @@ import static io.github.ParthaSarathiJN.common.Constants.*;
 
 public class PDU {
 
+    private static final Logger logger = LoggerFactory.getLogger(PDU.class);
+
     private PDUHeader pduHeader;
     private PDUBase pduBase;
     private PDUPacket implPacket;
+
+    public PDU() {}
 
     public PDU(PDUHeader pduHeader, PDUBase pduBase, PDUPacket implPacket) {
         this.pduHeader = pduHeader;
@@ -51,6 +58,14 @@ public class PDU {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public PDUBase getPduBase() {
+        return pduBase;
+    }
+
+    public PDUPacket getImplPacket() {
+        return implPacket;
     }
 
     public int getLength() {

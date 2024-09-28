@@ -1,21 +1,30 @@
 package io.github.ParthaSarathiJN.pdu;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
-import java.util.Objects;
 
 import static io.github.ParthaSarathiJN.common.Constants.GET_RESP;
 
 public class GetResponse implements PDUPacket {
 
+    private static final Logger logger = LoggerFactory.getLogger(GetResponse.class);
+
+    private PDU pdu;
+
     private int valueLength;
     private byte[] valueBytes;
 
-    public GetResponse() {
-    }
+    public GetResponse() {}
 
-    public GetResponse(byte[] valueBytes) {
-        this.valueLength = Objects.requireNonNull(valueBytes).length;
+    public GetResponse(byte[] valueBytes, int status) {
+        this.valueLength = (valueBytes).length;
         this.valueBytes = valueBytes;
+
+        PDUHeader pduHeader = new PDUHeader(GET_RESP);
+        PDUBase pduBase = new ResponsePacket(status);
+        pduHeader.setLength(pduHeader.calculateLength() + pduBase.calculateLength() + this.calculateLength());
+        this.pdu = new PDU(pduHeader, pduBase, this);
     }
 
     @Override
@@ -38,12 +47,6 @@ public class GetResponse implements PDUPacket {
         }
     }
 
-//    public void fromByteArray(byte[] data) {
-//        super.fromByteArray(data);
-//        setValueLength(buffer.getInt());
-//        setValueBytes(buffer);
-//    }
-
     public int getValueLength() {
         return valueLength;
     }
@@ -63,5 +66,9 @@ public class GetResponse implements PDUPacket {
 
     public int calculateLength() {
         return 4 + valueLength;
+    }
+
+    public PDU getPDU() {
+        return this.pdu;
     }
 }

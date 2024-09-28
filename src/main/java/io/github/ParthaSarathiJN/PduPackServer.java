@@ -1,6 +1,7 @@
 package io.github.ParthaSarathiJN;
 
 import io.github.ParthaSarathiJN.pdu.*;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,12 +9,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import org.slf4j.Logger;
 
 public class PduPackServer {
 
+	private static final Logger logger = LoggerFactory.getLogger(PduPackServer.class);
+
 	public static void main(String[] args) {
+
 		try (ServerSocket serverSocket = new ServerSocket(8080)) {
-			System.out.println("Server listening on port 8080...");
+			logger.trace("Server listening on port 8080...");
 
 			while (true) {
 				Socket socket = serverSocket.accept();
@@ -23,18 +28,18 @@ public class PduPackServer {
 				// Receive and deserialize PDU
 				byte[] pduBytes = new byte[100];  // Adjust size accordingly
 				int bytesRead = in.read(pduBytes);
-				System.out.println("Bytes received: " + bytesRead);
+				logger.debug("Bytes received: " + bytesRead);
 				ByteBuffer buffer = ByteBuffer.wrap(pduBytes);
-				System.out.println("Received raw data: " + Arrays.toString(pduBytes));
+				logger.info("Received raw data: " + Arrays.toString(pduBytes));
 
 
 				// Deserialize based on expected packet types
 				BuiltPDU builtPdu = BuiltPDU.setData(buffer, RequestPacket.class, GetRequest.class);
 
 				// Verify the received PDU
-				System.out.println("Received PDU:");
-				System.out.println("Header Length: " + builtPdu.getPDUHeader().getLength());
-				System.out.println("Request Key: " + new String(((RequestPacket) builtPdu.getBasePacket()).getKeyBytes()));
+				logger.info("Received PDU:");
+				logger.info("Header Length: " + builtPdu.getPDUHeader().getLength());
+				logger.info("Request Key: " + new String(((RequestPacket) builtPdu.getBasePacket()).getKeyBytes()));
 
 				// Create a response PDU
 				PDUHeader responseHeader = new PDUHeader();
@@ -43,7 +48,7 @@ public class PduPackServer {
 
 				// Create a ResponsePacket and GetResponse (or other response types)
 				ResponsePacket responsePacket = new ResponsePacket(0);
-				GetResponse getResponse = new GetResponse("responseKeyData".getBytes());  // Assume similar to ResponsePacket
+				GetResponse getResponse = new GetResponse("responseKeyData".getBytes(), 0);  // Assume similar to ResponsePacket
 
 				// Create the full response PDU
 				BuiltPDU responseBuiltPDU = new BuiltPDU(responseHeader, responsePacket, getResponse);

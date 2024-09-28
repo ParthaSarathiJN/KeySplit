@@ -1,13 +1,25 @@
 package io.github.ParthaSarathiJN.pdu;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
 public class PDUHeader implements PDUPacket {
 
+    private static final Logger logger = LoggerFactory.getLogger(PDUHeader.class);
+
     private int length;
     private byte operation;
     private byte[] uuidByteArr = new byte[16];
+
+    public PDUHeader() {}
+
+    public PDUHeader(byte operation) {
+        this.operation = operation;
+        this.uuidByteArr = generateUUID();
+    }
 
     public ByteBuffer getData() {
         ByteBuffer buffer = ByteBuffer.allocate(21);

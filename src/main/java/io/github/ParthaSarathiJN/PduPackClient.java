@@ -7,10 +7,15 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PduPackClient {
 
+	private static final Logger logger = LoggerFactory.getLogger(PduPackClient.class);
+
 	public static void main(String[] args) {
+
 		try (Socket socket = new Socket("localhost", 8080)) {
 			OutputStream out = socket.getOutputStream();
 			InputStream in = socket.getInputStream();
@@ -32,12 +37,12 @@ public class PduPackClient {
 			// Send the PDU
 			ByteBuffer buffer = builtPdu.getData();  // PDU serialization
 			byte[] pduBytes = buffer.array();
-			System.out.println("Client sending data: " + Arrays.toString(pduBytes));
+			logger.info("Client sending data: " + Arrays.toString(pduBytes));
 			out.write(pduBytes);
 			out.flush();
 
 //			byte[] pduBytes = buffer.array();
-//			System.out.println("Sending raw data: " + Arrays.toString(pduBytes));
+//			logger.info("Sending raw data: " + Arrays.toString(pduBytes));
 
 
 			// Receive and deserialize the response PDU
@@ -49,9 +54,9 @@ public class PduPackClient {
 			BuiltPDU responseBuiltPDU = BuiltPDU.setData(responseBuffer, ResponsePacket.class, GetResponse.class);
 
 			// Verify the response
-			System.out.println("Received PDU:");
-			System.out.println("Header Length: " + responseBuiltPDU.getPDUHeader().getLength());
-			System.out.println("Response Key: " + new String(((GetResponse) responseBuiltPDU.getImplPacket()).getValueBytes()));
+			logger.error("Received PDU:");
+			logger.info("Header Length: " + responseBuiltPDU.getPDUHeader().getLength());
+			logger.info("Response Key: " + new String(((GetResponse) responseBuiltPDU.getImplPacket()).getValueBytes()));
 
 		} catch (Exception e) {
 			e.printStackTrace();

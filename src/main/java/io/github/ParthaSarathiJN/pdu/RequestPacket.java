@@ -1,15 +1,19 @@
 package io.github.ParthaSarathiJN.pdu;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.ByteBuffer;
 
 public class RequestPacket implements PDUBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(RequestPacket.class);
 
     private long timestamp;
     private int keyLength;
     private byte[] keyBytes;
 
-    public RequestPacket() {
-    }
+    public RequestPacket() {}
 
     public RequestPacket(byte[] keyBytes) {
         this.timestamp = getCurrentTimestamp();

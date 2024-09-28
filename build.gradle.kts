@@ -11,6 +11,8 @@ repositories {
 
 dependencies {
 
+    implementation("org.slf4j:slf4j-api:2.0.7")
+    implementation("ch.qos.logback:logback-classic:1.4.8")
     implementation("org.apache.logging.log4j:log4j-core:2.20.0")
     implementation("org.apache.logging.log4j:log4j-api:2.20.0")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
