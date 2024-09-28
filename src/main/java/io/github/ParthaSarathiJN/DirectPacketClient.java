@@ -20,8 +20,10 @@ public class DirectPacketClient {
             OutputStream out = socket.getOutputStream();
             InputStream in = socket.getInputStream();
 
-            GetRequest getReq = new GetRequest("firstTest".getBytes());
-            PDU fullPdu = getReq.getPDU();
+            GetRequest getRequest = new GetRequest("NextKey".getBytes());
+            PDU fullPdu = getRequest.getPDU();
+//            InsertRequest insertRequest = new InsertRequest("NextKey".getBytes(), "Value2".getBytes());
+//            PDU fullPdu = insertRequest.getPDU();
 
             // Send the PDU
             ByteBuffer buffer = fullPdu.getData();
@@ -41,14 +43,19 @@ public class DirectPacketClient {
             PDU receivedReq = reqPdu.createPdu(responseBuffer);
 
             // Verify the response
-            logger.error("Received PDU:");
+            logger.error("Received Response PDU from Server");
             logger.info("Header Length: {}", receivedReq.getLength());
+
             String value = null;
+
             if (receivedReq.getOperation() == -1) {
                 GetResponse getResponse = (GetResponse) receivedReq.getImplPacket();
                 value = new String(getResponse.getValueBytes());
+                logger.info("GetResponse, Response Key: {}", value);
+            } else if (receivedReq.getOperation() == -2) {
+                logger.info("InsertResponse");
+                InsertResponse insertResponse = (InsertResponse) receivedReq.getImplPacket();
             }
-            logger.info("Response Key: {}", value);
 
         } catch (Exception e) {
             e.printStackTrace();

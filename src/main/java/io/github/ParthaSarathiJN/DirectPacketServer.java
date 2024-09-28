@@ -10,6 +10,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import static io.github.ParthaSarathiJN.common.Constants.*;
 
 public class DirectPacketServer {
 
@@ -17,8 +20,11 @@ public class DirectPacketServer {
 
     public static void main(String[] args) {
 
+        Map<ByteBuffer, byte[]> keyValueMap = new ConcurrentHashMap<>();
+
         try (ServerSocket serverSocket = new ServerSocket(8080)) {
-            logger.trace("Server listening on port 8080...");
+
+            logger.error("Server listening on port 8080...");
 
             while (true) {
 
@@ -38,14 +44,33 @@ public class DirectPacketServer {
 
                 PDU receivedReq = pdu.createPdu(buffer);
 
-                // Verify the received PDU
-                logger.info("Received PDU in Server");
+                RequestPacket requestPacket = (RequestPacket) receivedReq.getPduBase();
+                byte[] value = new byte[0];
+
+                if (receivedReq.getOperation() == GET_REQ) {
+                    logger.info("Received GetRequest PDU in Server");
+                    GetRequest getRequest = (GetRequest) receivedReq.getImplPacket();
+                    value = keyValueMap.get(ByteBuffer.wrap(requestPacket.getKeyBytes()));
+                    logger.error("Value is: {}", keyValueMap.get(ByteBuffer.wrap(requestPacket.getKeyBytes())));
+                } else if (receivedReq.getOperation() == INSERT_REQ) {
+                    logger.info("Received InsertRequest PDU in Server");
+                    InsertRequest insertRequest = (InsertRequest) receivedReq.getImplPacket();
+                    keyValueMap.put(ByteBuffer.wrap(requestPacket.getKeyBytes()), insertRequest.getValueBytes());
+                    logger.error("Added as size {}", keyValueMap.size());
+                }
+
                 logger.info("Header Length: {}", receivedReq.getLength());
-                logger.info("Request Key: {}", new String(((RequestPacket) receivedReq.getPduBase()).getKeyBytes()));
+                logger.info("Request Key: {}", new String((requestPacket.getKeyBytes())));
 
-                GetResponse getResp = new GetResponse("firstResp".getBytes(), 0);
-                PDU sendingResp = getResp.getPDU();
+                PDU sendingResp = null;
 
+                if (receivedReq.getOperation() == GET_REQ) {
+                    GetResponse getResp = new GetResponse(value, 0);
+                    sendingResp = getResp.getPDU();
+                } else if (receivedReq.getOperation() == INSERT_REQ) {
+                    InsertResponse insertResponse = new InsertResponse(0);
+                    sendingResp = insertResponse.getPdu();
+                }
                 // Send the response
                 ByteBuffer responseBuffer = sendingResp.getData();
                 out.write(responseBuffer.array());
