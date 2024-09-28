@@ -1,142 +1,88 @@
 package io.github.ParthaSarathiJN.pdu;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static io.github.ParthaSarathiJN.common.Constants.*;
 
 public class PDU {
 
-	private PDUHeader pduHeader;
-	private PDUPacket basePacket;
-	private PDUPacket implPacket;
+    private PDUHeader pduHeader;
+    private PDUBase pduBase;
+    private PDUPacket implPacket;
 
-	public PDU(PDUHeader pduHeader, PDUPacket basePacket, PDUPacket implPacket) {
+    public PDU(PDUHeader pduHeader, PDUBase pduBase, PDUPacket implPacket) {
+        this.pduHeader = pduHeader;
+        this.pduBase = pduBase;
+        this.implPacket = implPacket;
+    }
 
-		this.pduHeader = pduHeader;
-		this.basePacket = basePacket;
-		this.implPacket = implPacket;
+    public ByteBuffer getData() {
+        int totalLength = pduHeader.calculateLength() + pduBase.calculateLength() + implPacket.calculateLength();
+        ByteBuffer buffer = ByteBuffer.allocate(totalLength);
+        buffer.put(pduHeader.getData());
+        buffer.put(pduBase.getData());
+        buffer.put(implPacket.getData());
+        buffer.flip();
+        return buffer;
+    }
 
-//		int baseCapacity = (basePacket != null && basePacket.getData() != null) ? basePacket.getData().capacity() : 0;
-//		int implCapacity = (implPacket != null && implPacket.getData() != null) ? implPacket.getData().capacity() : 0;
-//		int totalLength = pduHeader.getData().capacity() + baseCapacity + implCapacity;
+    public PDU createPdu(ByteBuffer buffer) {
+        try {
 
-//		pduHeader.setLength(totalLength);
+            pduHeader = new PDUHeader();
+            pduHeader.setData(buffer);
 
-		pduHeader.setLength(pduHeader.calculateLength() + basePacket.calculateLength() + implPacket.calculateLength());
-	}
+            if (pduHeader.getOperation() > 0) {
+                pduBase = new RequestPacket();
+            } else {
+                pduBase = new ResponsePacket();
+            }
 
-	public ByteBuffer getData() {
-		// Calculate the total length first
-		int totalLength = (pduHeader != null && pduHeader.getData() != null ? pduHeader.getData().capacity() : 0) +
-				(basePacket != null && basePacket.getData() != null ? basePacket.getData().capacity() : 0) +
-				(implPacket != null && implPacket.getData() != null ? implPacket.getData().capacity() : 0);
+            pduBase.setData(buffer);
 
-		// Allocate ByteBuffer with total length
-		ByteBuffer buffer = ByteBuffer.allocate(totalLength);
+            implPacket = createImplPacket(pduHeader.getOperation());
+            implPacket.setData(buffer);
 
-		// Put the data into the buffer, handling null cases
-		buffer.put(pduHeader.getData());
-		buffer.put(basePacket.getData());
-		buffer.put(implPacket.getData());
+            return this;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		buffer.flip();  // Prepare buffer for reading
-		return buffer;
-	}
+    public int getLength() {
+        return pduHeader.getLength();
+    }
 
-	public static PDU setData(ByteBuffer buffer, Class<? extends PDUPacket> basePacketClass, Class<? extends PDUPacket> implPacketClass) {
-		try {
-			// Deserialize the PDUHeader
-			PDUHeader header = new PDUHeader();
-			header.setData(buffer);
+    public byte getOperation() {
+        return pduHeader.getOperation();
+    }
 
-			// Deserialize the base packet
-			PDUPacket basePacket = basePacketClass.getDeclaredConstructor().newInstance();
-			basePacket.setData(buffer);
+    public byte[] getUuidByteArr() {
+        return pduHeader.getUuidByteArr();
+    }
 
-			// Deserialize the implementation packet
-			PDUPacket implPacket = implPacketClass.getDeclaredConstructor().newInstance();
-			implPacket.setData(buffer);
+    public UUID getUuid() {
+        return pduHeader.getUuid();
+    }
 
-			// Create the full PDU object with the deserialized components
-			return new PDU(header, basePacket, implPacket);
+    public PDUPacket createImplPacket(byte operation) {
+        try {
+            return (PDUPacket) pduList.get(operation).getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-
-	public PDUHeader getPDUHeader() {
-		return pduHeader;
-	}
-
-	public PDUPacket getBasePacket() {
-		return basePacket;
-	}
-
-	public PDUPacket getImplPacket() {
-		return implPacket;
-	}
-
-//	public ByteBuffer getData() {
-//		return null;
-//	}
-
-	public void setData(ByteBuffer buffer) {
-		return;
-	}
-
-	public boolean canResponse() {
-		return false;
-	}
-
-	public void setOperation(byte operation) {
-		pduHeader.setOperation(operation);
-	}
-
-//	public PDU createPdu(ByteBuffer buffer) {
-//
-//		pduHeader.setData(buffer);
-//
-//		if (pduHeader.getOperation() > 0) {
-//			requestPacket = new RequestPacket();
-//			requestPacket.setData(buffer);
-//			PDU pdu = createImplPdu(pduHeader.getOperation(), buffer, requestPacket.getKeyLength());
-//			pdu.setData(buffer);
-//		} else {
-//			responsePacket = new ResponsePacket();
-//			responsePacket.setData(buffer);
-////			PDU pdu = createImplPdu(pduHeader.getOperation());
-////			pdu.setData(buffer);
-//		}
-//
-//		return pduHeader;
-//	}
-
-//	public PDU createImplPdu(byte operation, ByteBuffer buffer, int keyLength) {
-//		switch (operation) {
-//			case GET_REQ:
-//				byte[] keyBytes = new byte[keyLength];
-//				buffer.get(keyBytes);
-//				return new GetRequest(keyBytes);
-//			case INSERT_REQ:
-//				return new InsertRequest();
-//			case UPDATE_REQ:
-//				return new UpdateRequest();
-//			case DELETE_REQ:
-//				return new DeleteRequest();
-//			case GET_RESP:
-//				return new GetResponse();
-//			case INSERT_RESP:
-//				return new InsertResponse();
-//			case UPDATE_RESP:
-//				return new UpdateResponse();
-//			case DELETE_RESP:
-//				return new DeleteResponse();
-//			default:
-//				throw new IllegalArgumentException("Unknown operation: " + operation);
-//		}
-//	}
+    private static final Map<Byte, Class> pduList = new HashMap(10);
+    static {
+        pduList.put(GET_REQ, GetRequest.class);
+        pduList.put(INSERT_REQ, InsertRequest.class);
+        pduList.put(GET_RESP, GetResponse.class);
+        pduList.put(INSERT_RESP, InsertResponse.class);
+    }
 
 }

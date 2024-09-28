@@ -1,17 +1,27 @@
-//package io.github.ParthaSarathiJN.pdu;
-//
-//import static io.github.ParthaSarathiJN.common.Constants.INSERT_RESP;
-//
-//public class InsertResponse extends ResponsePacket {
-//
-//    public InsertResponse(int status) {
-//        super(INSERT_RESP, status);
-//        this.length = calculateLength();
-//    }
-//
-//    @Override
-//    protected int calculateLength() {
-//        return super.calculateLength();
-//    }
-//
-//}
+package io.github.ParthaSarathiJN.pdu;
+
+import java.nio.ByteBuffer;
+
+import static io.github.ParthaSarathiJN.common.Constants.INSERT_RESP;
+
+public class InsertResponse implements PDUBase {
+
+    public InsertResponse() {
+    }
+
+    @Override
+    public ByteBuffer getData() {
+        return ByteBuffer.allocate(0);
+    }
+
+    @Override
+    public void setData(ByteBuffer buffer) {
+        return;
+    }
+
+    @Override
+    public int calculateLength() {
+        return 0;
+    }
+
+}

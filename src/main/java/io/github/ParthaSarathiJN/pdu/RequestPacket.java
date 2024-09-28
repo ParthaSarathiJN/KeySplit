@@ -2,7 +2,7 @@ package io.github.ParthaSarathiJN.pdu;
 
 import java.nio.ByteBuffer;
 
-public class RequestPacket implements PDUPacket {
+public class RequestPacket implements PDUBase {
 
     private long timestamp;
     private int keyLength;
@@ -23,8 +23,8 @@ public class RequestPacket implements PDUPacket {
         buffer.putLong(getTimestamp());
         buffer.putInt(getKeyLength());
         buffer.put(keyBytes);
-        System.out.println("Serialized keyLength: " + keyLength);
-        System.out.println("Serialized keyBytes: " + new String(keyBytes));
+        System.out.println("Serialized keyLength in RequestPacket: " + keyLength);
+        System.out.println("Serialized keyBytes in RequestPacket: " + new String(keyBytes));
         buffer.flip();
         return buffer;
     }
@@ -33,11 +33,11 @@ public class RequestPacket implements PDUPacket {
     public void setData(ByteBuffer buffer) {
         this.timestamp = buffer.getLong();
         this.keyLength = buffer.getInt();
-        System.out.println("Deserialized keyLength: " + this.keyLength);
+        System.out.println("Deserialized keyLength in RequestPacket: " + this.keyLength);
         if (keyLength > 0) {
             this.keyBytes = new byte[keyLength];
             buffer.get(this.keyBytes);      // Deserialize key bytes
-            System.out.println("Deserialized keyBytes: " + new String(this.keyBytes));
+            System.out.println("Deserialized keyBytes in RequestPacket: " + new String(this.keyBytes));
         } else {
             keyBytes = new byte[0];  // Handle empty case
         }

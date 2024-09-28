@@ -2,7 +2,7 @@ package io.github.ParthaSarathiJN.pdu;
 
 import java.nio.ByteBuffer;
 
-public class ResponsePacket implements PDUPacket {
+public class ResponsePacket implements PDUBase {
 
     private int status;
 

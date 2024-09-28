@@ -5,13 +5,9 @@ import java.util.UUID;
 
 public class PDUHeader implements PDUPacket {
 
-    protected int length;
+    private int length;
     private byte operation;
     private byte[] uuidByteArr = new byte[16];
-
-//    public PDUHeader(byte operation) {
-//        super(operation);
-//    }
 
     public ByteBuffer getData() {
         ByteBuffer buffer = ByteBuffer.allocate(21);

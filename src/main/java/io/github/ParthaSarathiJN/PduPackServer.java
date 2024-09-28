@@ -29,27 +29,27 @@ public class PduPackServer {
 
 
 				// Deserialize based on expected packet types
-				PDU pdu = PDU.setData(buffer, RequestPacket.class, GetRequest.class);
+				BuiltPDU builtPdu = BuiltPDU.setData(buffer, RequestPacket.class, GetRequest.class);
 
 				// Verify the received PDU
 				System.out.println("Received PDU:");
-				System.out.println("Header Length: " + pdu.getPDUHeader().getLength());
-				System.out.println("Request Key: " + new String(((RequestPacket) pdu.getBasePacket()).getKeyBytes()));
+				System.out.println("Header Length: " + builtPdu.getPDUHeader().getLength());
+				System.out.println("Request Key: " + new String(((RequestPacket) builtPdu.getBasePacket()).getKeyBytes()));
 
 				// Create a response PDU
 				PDUHeader responseHeader = new PDUHeader();
 				responseHeader.setOperation((byte) -1);
-				responseHeader.setUuidByteArr(ByteBuffer.wrap(pdu.getPDUHeader().getUuidByteArr()));
+				responseHeader.setUuidByteArr(ByteBuffer.wrap(builtPdu.getPDUHeader().getUuidByteArr()));
 
 				// Create a ResponsePacket and GetResponse (or other response types)
 				ResponsePacket responsePacket = new ResponsePacket(0);
 				GetResponse getResponse = new GetResponse("responseKeyData".getBytes());  // Assume similar to ResponsePacket
 
 				// Create the full response PDU
-				PDU responsePDU = new PDU(responseHeader, responsePacket, getResponse);
+				BuiltPDU responseBuiltPDU = new BuiltPDU(responseHeader, responsePacket, getResponse);
 
 				// Send the response
-				ByteBuffer responseBuffer = responsePDU.getData();
+				ByteBuffer responseBuffer = responseBuiltPDU.getData();
 				out.write(responseBuffer.array());
 				out.flush();
 			}

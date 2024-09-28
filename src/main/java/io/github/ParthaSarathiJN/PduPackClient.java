@@ -27,10 +27,10 @@ public class PduPackClient {
 			GetRequest getRequest = new GetRequest();  // Assume similar to RequestPacket
 
 			// Create the full PDU
-			PDU pdu = new PDU(pduHeader, requestPacket, getRequest);
+			BuiltPDU builtPdu = new BuiltPDU(pduHeader, requestPacket, getRequest);
 
 			// Send the PDU
-			ByteBuffer buffer = pdu.getData();  // PDU serialization
+			ByteBuffer buffer = builtPdu.getData();  // PDU serialization
 			byte[] pduBytes = buffer.array();
 			System.out.println("Client sending data: " + Arrays.toString(pduBytes));
 			out.write(pduBytes);
@@ -46,12 +46,12 @@ public class PduPackClient {
 			ByteBuffer responseBuffer = ByteBuffer.wrap(responseBytes);
 
 			// Deserialize the PDU based on expected packet types
-			PDU responsePDU = PDU.setData(responseBuffer, ResponsePacket.class, GetResponse.class);
+			BuiltPDU responseBuiltPDU = BuiltPDU.setData(responseBuffer, ResponsePacket.class, GetResponse.class);
 
 			// Verify the response
 			System.out.println("Received PDU:");
-			System.out.println("Header Length: " + responsePDU.getPDUHeader().getLength());
-			System.out.println("Response Key: " + new String(((GetResponse) responsePDU.getImplPacket()).getValueBytes()));
+			System.out.println("Header Length: " + responseBuiltPDU.getPDUHeader().getLength());
+			System.out.println("Response Key: " + new String(((GetResponse) responseBuiltPDU.getImplPacket()).getValueBytes()));
 
 		} catch (Exception e) {
 			e.printStackTrace();
