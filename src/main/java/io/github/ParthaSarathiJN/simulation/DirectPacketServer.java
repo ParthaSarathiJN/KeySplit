@@ -1,4 +1,4 @@
-package io.github.ParthaSarathiJN;
+package io.github.ParthaSarathiJN.simulation;
 
 import io.github.ParthaSarathiJN.pdu.*;
 import org.slf4j.Logger;
