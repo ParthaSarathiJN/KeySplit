@@ -27,8 +27,7 @@ public class RequestPacket implements PDUBase {
         buffer.putLong(getTimestamp());
         buffer.putInt(getKeyLength());
         buffer.put(keyBytes);
-        logger.info("Serialized keyLength in RequestPacket: {}", keyLength);
-        logger.info("Serialized keyBytes in RequestPacket: {}", new String(keyBytes));
+        logger.info("Serialized keyLength:{}, keyBytes:{} in RequestPacket", keyLength, new String(keyBytes));
         buffer.flip();
         return buffer;
     }
@@ -37,13 +36,12 @@ public class RequestPacket implements PDUBase {
     public void setData(ByteBuffer buffer) {
         this.timestamp = buffer.getLong();
         this.keyLength = buffer.getInt();
-        logger.info("Deserialized keyLength in RequestPacket: {}", this.keyLength);
         if (keyLength > 0) {
             this.keyBytes = new byte[keyLength];
-            buffer.get(this.keyBytes);      // Deserialize key bytes
-            logger.info("Deserialized keyBytes in RequestPacket: {}", new String(this.keyBytes));
+            buffer.get(this.keyBytes);
+            logger.info("Deserialized keyLength:{}, keyBytes{} in RequestPacket", keyLength, new String(this.keyBytes));
         } else {
-            keyBytes = new byte[0];  // Handle empty case
+            keyBytes = new byte[0];
         }
     }
 

@@ -74,7 +74,7 @@ public class InsertRequest implements PDUPacket {
         return 4 + valueLength;
     }
 
-    public PDU getPDU() {
+    public PDU getPdu() {
         return this.pdu;
     }
 }

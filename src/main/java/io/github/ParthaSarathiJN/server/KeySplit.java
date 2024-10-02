@@ -27,6 +27,8 @@ public class KeySplit {
         int applicationPort = properties[0];
         int threadPoolSize = properties[1];
 
+        logger.info("Fetched Properties from Properties file!");
+
         KeyValueStoreServer keyValServer = new KeyValueStoreServer(applicationPort, threadPoolSize);
         keyValServer.startServer();
     }

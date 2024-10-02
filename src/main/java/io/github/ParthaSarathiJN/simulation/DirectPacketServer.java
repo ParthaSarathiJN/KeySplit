@@ -66,7 +66,7 @@ public class DirectPacketServer {
 
                 if (receivedReq.getOperation() == GET_REQ) {
                     GetResponse getResp = new GetResponse(value, 0);
-                    sendingResp = getResp.getPDU();
+                    sendingResp = getResp.getPdu();
                 } else if (receivedReq.getOperation() == INSERT_REQ) {
                     InsertResponse insertResponse = new InsertResponse(0);
                     sendingResp = insertResponse.getPdu();

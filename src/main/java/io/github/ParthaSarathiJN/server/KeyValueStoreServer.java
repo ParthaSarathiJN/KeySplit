@@ -13,9 +13,9 @@ public class KeyValueStoreServer {
 
     private static final Logger logger = LoggerFactory.getLogger(KeyValueStoreServer.class);
 
-    private int applicationPort;
-    private ExecutorService threadPool;
-    private StoreKeyValue storeKeyValue;
+    private final int applicationPort;
+    private final ExecutorService threadPool;
+    private final StoreKeyValue storeKeyValue;
 
     public KeyValueStoreServer(int applicationPort, int threadPoolSize) {
         this.threadPool = Executors.newFixedThreadPool(threadPoolSize);
@@ -23,17 +23,24 @@ public class KeyValueStoreServer {
         this.applicationPort = applicationPort;
     }
 
-    public void startServer() throws IOException {
+    public void startServer() {
 
-        ServerSocket serverSocket = new ServerSocket(applicationPort);
+        try {
 
-        while (true) {
-            try {
-                Socket clientSocket = serverSocket.accept();
-                threadPool.execute(new SessionWorker(clientSocket, storeKeyValue));
-            } catch (IOException ioException) {
-                logger.error("IOException in Socket!");
+            ServerSocket serverSocket = new ServerSocket(applicationPort);
+            logger.info("Starting server socket on port: {}", applicationPort);
+
+            while (true) {
+                try {
+                    Socket clientSocket = serverSocket.accept();
+                    threadPool.execute(new SessionWorker(clientSocket, storeKeyValue));
+                } catch (IOException ioException) {
+                    logger.error("IOException in Socket!");
+                }
             }
+
+        } catch (IOException ioServerSocketException) {
+            logger.error("IoServerSocketException in ServerSocket!");
         }
     }
 

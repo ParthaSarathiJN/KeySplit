@@ -98,6 +98,10 @@ public class PDU {
         pduList.put(INSERT_REQ, InsertRequest.class);
         pduList.put(GET_RESP, GetResponse.class);
         pduList.put(INSERT_RESP, InsertResponse.class);
+        pduList.put(UPDATE_REQ, UpdateRequest.class);
+        pduList.put(UPDATE_RESP, UpdateResponse.class);
+        pduList.put(DELETE_REQ, DeleteRequest.class);
+        pduList.put(DELETE_RESP, DeleteResponse.class);
     }
 
 }

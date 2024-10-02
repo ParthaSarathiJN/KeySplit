@@ -36,7 +36,7 @@ public class GetRequest implements PDUPacket {
 		return 0;
 	}
 
-	public PDU getPDU() {
+	public PDU getPdu() {
 		return this.pdu;
 	}
 }

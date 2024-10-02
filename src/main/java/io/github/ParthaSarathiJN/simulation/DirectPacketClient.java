@@ -21,9 +21,9 @@ public class DirectPacketClient {
             InputStream in = socket.getInputStream();
 
             GetRequest getRequest = new GetRequest("NextKey".getBytes());
-            PDU fullPdu = getRequest.getPDU();
+            PDU fullPdu = getRequest.getPdu();
 //            InsertRequest insertRequest = new InsertRequest("NextKey".getBytes(), "Value2".getBytes());
-//            PDU fullPdu = insertRequest.getPDU();
+//            PDU fullPdu = insertRequest.getPdu();
 
             // Send the PDU
             ByteBuffer buffer = fullPdu.getData();

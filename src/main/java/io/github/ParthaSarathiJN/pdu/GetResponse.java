@@ -18,7 +18,7 @@ public class GetResponse implements PDUPacket {
     public GetResponse() {}
 
     public GetResponse(byte[] valueBytes, int status) {
-        this.valueLength = (valueBytes).length;
+        this.valueLength = valueBytes.length;
         this.valueBytes = valueBytes;
 
         PDUHeader pduHeader = new PDUHeader(GET_RESP);
@@ -68,7 +68,7 @@ public class GetResponse implements PDUPacket {
         return 4 + valueLength;
     }
 
-    public PDU getPDU() {
+    public PDU getPdu() {
         return this.pdu;
     }
 }

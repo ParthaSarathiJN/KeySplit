@@ -1,17 +1,19 @@
 package io.github.ParthaSarathiJN.server;
 
 import io.github.ParthaSarathiJN.pdu.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
-import static io.github.ParthaSarathiJN.common.Constants.GET_REQ;
-import static io.github.ParthaSarathiJN.common.Constants.INSERT_REQ;
+import static io.github.ParthaSarathiJN.common.Constants.*;
 
 public class SessionWorker implements Runnable {
+
+    private static final Logger logger = LoggerFactory.getLogger(SessionWorker.class);
 
     private final Socket clientSocket;
     private final StoreKeyValue storeKeyValue;
@@ -24,26 +26,33 @@ public class SessionWorker implements Runnable {
     @Override
     public void run() {
         try {
-            InputStream in = clientSocket.getInputStream();
-            OutputStream out = clientSocket.getOutputStream();
+            InputStream inputStream = clientSocket.getInputStream();
+            OutputStream outputStream = clientSocket.getOutputStream();
 
             // Read incoming PDU, deserialize, and process it
             byte[] pduBytes = new byte[1024]; // Buffer size for incoming data
-            in.read(pduBytes);
+            inputStream.read(pduBytes);
             ByteBuffer buffer = ByteBuffer.wrap(pduBytes);
 
+            PDU pdu = new PDU();
+
             // Deserialize and create PDU based on packet type
-            PDU receivedPdu = PDU.createPdu(buffer);
+            PDU receivedPdu = pdu.createPdu(buffer);
 
             // Process based on the operation
             switch (receivedPdu.getOperation()) {
                 case GET_REQ:
-                    handleGetRequest(out, receivedPdu);
+                    handleGetRequest(outputStream, receivedPdu);
                     break;
                 case INSERT_REQ:
-                    handleInsertRequest(out, receivedPdu);
+                    handleInsertRequest(outputStream, receivedPdu);
                     break;
-                // Add more case blocks for other operations (UPDATE_REQ, DELETE_REQ)
+                case UPDATE_REQ:
+                    handleUpdateRequest(outputStream, receivedPdu);
+                    break;
+                case DELETE_REQ:
+                    handleDeleteRequest(outputStream, receivedPdu);
+                    break;
                 default:
                     break;
             }
@@ -53,30 +62,86 @@ public class SessionWorker implements Runnable {
         }
     }
 
-    private void handleGetRequest(OutputStream out, PDU receivedPdu) throws IOException {
-        GetRequest getRequest = (GetRequest) receivedPdu.getImplPacket();
-        ByteBuffer key = getRequest.getKeyBuffer();
+    private void handleGetRequest(OutputStream outputStream, PDU receivedPdu) throws IOException {
 
-        byte[] value = storeKeyValue.get(key);
+        RequestPacket requestPacket = (RequestPacket) receivedPdu.getPduBase();
+        ByteBuffer key = ByteBuffer.wrap(requestPacket.getKeyBytes());
 
-        // Build and send response
+        // TODO: Check if it does reference check for fetching kv or key bytes match
+        byte[] value = storeKeyValue.get(key).array();
+
+        logger.info("Received GetRequest from Client for Key: {}", new String(requestPacket.getKeyBytes()));
+        logger.info("Found Value in Map: {}", new String(value));
+
         GetResponse getResponse = new GetResponse(value, 0);
-        PDU responsePdu = getResponse.getPDU();
-        out.write(responsePdu.getData().array());
-        out.flush();
+        PDU responsePdu = getResponse.getPdu();
+
+        logger.info("Sent GetResponse to Client");
+
+        outputStream.write(responsePdu.getData().array());
+        outputStream.flush();
     }
 
-    private void handleInsertRequest(OutputStream out, PDU receivedPdu) throws IOException {
+    private void handleInsertRequest(OutputStream outputStream, PDU receivedPdu) throws IOException {
+
+        RequestPacket requestPacket = (RequestPacket) receivedPdu.getPduBase();
+        ByteBuffer key = ByteBuffer.wrap(requestPacket.getKeyBytes());
+
         InsertRequest insertRequest = (InsertRequest) receivedPdu.getImplPacket();
-        ByteBuffer key = insertRequest.getKeyBuffer();
-        byte[] value = insertRequest.getValueBytes();
+        ByteBuffer value = ByteBuffer.wrap(insertRequest.getValueBytes());
 
-        storeKeyValue.put(key, value);
+        logger.info("Received InsertRequest from Client for Key: {} & Value: {}", new String(requestPacket.getKeyBytes()), new String(insertRequest.getValueBytes()));
+        logger.info("Inserted Key:Value in Map");
 
-        // Send acknowledgment or response (depends on how you design it)
+        ByteBuffer prevValue = storeKeyValue.put(key, value);
+
         InsertResponse insertResponse = new InsertResponse(0);
-        PDU responsePdu = insertResponse.getPDU();
-        out.write(responsePdu.getData().array());
-        out.flush();
+        PDU responsePdu = insertResponse.getPdu();
+
+        logger.info("Sent InsertResponse to Client");
+
+        outputStream.write(responsePdu.getData().array());
+        outputStream.flush();
+    }
+
+    private void handleUpdateRequest(OutputStream outputStream, PDU receivedPdu) throws IOException {
+
+        RequestPacket requestPacket = (RequestPacket) receivedPdu.getPduBase();
+        ByteBuffer key = ByteBuffer.wrap(requestPacket.getKeyBytes());
+
+        UpdateRequest updateRequest = (UpdateRequest) receivedPdu.getImplPacket();
+        ByteBuffer value = ByteBuffer.wrap(updateRequest.getValueBytes());
+
+        logger.info("Received UpdateRequest from Client for Key: {} & Value: {}", new String(requestPacket.getKeyBytes()), new String(updateRequest.getValueBytes()));
+        logger.info("Updated Key:Value in Map");
+
+        ByteBuffer prevValue = storeKeyValue.update(key, value);
+
+        UpdateResponse updateResponse = new UpdateResponse(0);
+        PDU responsePdu = updateResponse.getPdu();
+
+        logger.info("Sent UpdateResponse to Client");
+
+        outputStream.write(responsePdu.getData().array());
+        outputStream.flush();
+    }
+
+    private void handleDeleteRequest(OutputStream outputStream, PDU receivedPdu) throws IOException {
+
+        RequestPacket requestPacket = (RequestPacket) receivedPdu.getPduBase();
+        ByteBuffer key = ByteBuffer.wrap(requestPacket.getKeyBytes());
+
+        byte[] value = storeKeyValue.remove(key).array();
+
+        logger.info("Received DeleteRequest from Client for Key: {}", new String(requestPacket.getKeyBytes()));
+        logger.info("Deleted Key in Map");
+
+        DeleteResponse deleteResponse = new DeleteResponse(value, 0);
+        PDU responsePdu = deleteResponse.getPdu();
+
+        logger.info("Sent DeleteResponse to Client");
+
+        outputStream.write(responsePdu.getData().array());
+        outputStream.flush();
     }
 }
