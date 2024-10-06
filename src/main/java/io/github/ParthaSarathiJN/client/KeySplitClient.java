@@ -41,35 +41,39 @@ public class KeySplitClient {
 
         connectionOperations = new ConnectionOperations();
 
-        while (running) {
+        while (true) {
 
             setUpConToServer(serverPort);
-            createRequest = new CreateRequest(inputStream, outputStream);
 
-            System.out.println("\nChoose an operation:\n1. GET\n2. INSERT\n3. UPDATE\n4. DELETE");
+            while (running) {
 
-            String choice = scanner.nextLine();
-            switch (choice) {
-                case "1":
-                    createRequest.sendGetRequest(scanner);
-                    break;
-                case "2":
-                    createRequest.sendInsertRequest(scanner);
-                    break;
-                case "3":
-                    createRequest.sendUpdateRequest(scanner);
-                    break;
-                case "4":
-                    createRequest.sendDeleteRequest(scanner);
-                    break;
-                default:
-                    logger.info("Exiting Client Application...");
-                    running = false;
-                    break;
+                createRequest = new CreateRequest(inputStream, outputStream);
+
+                System.out.println("\nChoose an operation:\n1. GET\n2. INSERT\n3. UPDATE\n4. DELETE");
+
+                String choice = scanner.nextLine();
+
+                switch (choice) {
+                    case "1":
+                        createRequest.sendGetRequest(scanner);
+                        break;
+                    case "2":
+                        createRequest.sendInsertRequest(scanner);
+                        break;
+                    case "3":
+                        createRequest.sendUpdateRequest(scanner);
+                        break;
+                    case "4":
+                        createRequest.sendDeleteRequest(scanner);
+                        break;
+                    default:
+                        logger.info("Exiting Client Instance...");
+                        running = false;
+                        break;
+                }
             }
+            connectionOperations.closeConnection(socket, inputStream, outputStream);
         }
-
-        connectionOperations.closeConnection(socket, inputStream, outputStream);
     }
 
     private void setUpConToServer(int serverPort) throws IOException {

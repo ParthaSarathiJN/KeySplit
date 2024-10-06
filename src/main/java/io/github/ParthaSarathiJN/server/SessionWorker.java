@@ -32,30 +32,41 @@ public class SessionWorker implements Runnable {
 
             // Read incoming PDU, deserialize, and process it
             byte[] pduBytes = new byte[1024]; // Buffer size for incoming data
-            inputStream.read(pduBytes);
-            ByteBuffer buffer = ByteBuffer.wrap(pduBytes);
 
-            PDU pdu = new PDU();
+            // Loop until client disconnects or there's an error
+            while (true) {
+                int bytesRead = inputStream.read(pduBytes);
 
-            // Deserialize and create PDU based on packet type
-            PDU receivedPdu = pdu.createPdu(buffer);
+                // If bytesRead is -1, it means the client has disconnected
+                if (bytesRead == -1) {
+                    logger.info("Client disconnected.");
+                    break; // Exit the loop and close the connection
+                }
 
-            // Process based on the operation
-            switch (receivedPdu.getOperation()) {
-                case GET_REQ:
-                    handleGetRequest(outputStream, receivedPdu);
-                    break;
-                case INSERT_REQ:
-                    handleInsertRequest(outputStream, receivedPdu);
-                    break;
-                case UPDATE_REQ:
-                    handleUpdateRequest(outputStream, receivedPdu);
-                    break;
-                case DELETE_REQ:
-                    handleDeleteRequest(outputStream, receivedPdu);
-                    break;
-                default:
-                    break;
+                ByteBuffer buffer = ByteBuffer.wrap(pduBytes, 0, bytesRead); // Only process the actual bytes read
+
+                PDU pdu = new PDU();
+
+                // Deserialize and create PDU based on packet type
+                PDU receivedPdu = pdu.createPdu(buffer);
+
+                // Process based on the operation
+                switch (receivedPdu.getOperation()) {
+                    case GET_REQ:
+                        handleGetRequest(outputStream, receivedPdu);
+                        break;
+                    case INSERT_REQ:
+                        handleInsertRequest(outputStream, receivedPdu);
+                        break;
+                    case UPDATE_REQ:
+                        handleUpdateRequest(outputStream, receivedPdu);
+                        break;
+                    case DELETE_REQ:
+                        handleDeleteRequest(outputStream, receivedPdu);
+                        break;
+                    default:
+                        break;
+                }
             }
 
         } catch (Exception e) {
