@@ -12,24 +12,24 @@ public class StoreKeyValue {
         storeKVMap = new ConcurrentHashMap<>();
     }
 
-    // Add new key-value pair (insert)
-    public ByteBuffer put(ByteBuffer key, ByteBuffer value) {
-        return storeKVMap.put(key, value);
-    }
-
     // Get value for a given key
     public ByteBuffer get(ByteBuffer key) {
         return storeKVMap.get(key);
     }
 
-    // Remove a key-value pair
-    public ByteBuffer remove(ByteBuffer key) {
-        return storeKVMap.remove(key);
+    // Add new key-value pair (insert)
+    public ByteBuffer put(ByteBuffer key, ByteBuffer value) {
+        return storeKVMap.put(key, value);
     }
 
     // Update value for a given key (same as put)
-    public ByteBuffer update(ByteBuffer key, ByteBuffer value) {
-        return storeKVMap.put(key, value);
+//    public ByteBuffer update(ByteBuffer key, ByteBuffer value) {
+//        return storeKVMap.put(key, value);
+//    }
+
+    // Remove a key-value pair
+    public ByteBuffer remove(ByteBuffer key) {
+        return storeKVMap.remove(key);
     }
 }
 

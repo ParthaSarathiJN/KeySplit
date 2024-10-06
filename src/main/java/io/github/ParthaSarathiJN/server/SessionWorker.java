@@ -21,6 +21,7 @@ public class SessionWorker implements Runnable {
     public SessionWorker(Socket clientSocket, StoreKeyValue storeKeyValue) {
         this.clientSocket = clientSocket;
         this.storeKeyValue = storeKeyValue;
+        logger.info("New Client Connected!");
     }
 
     @Override
@@ -68,10 +69,17 @@ public class SessionWorker implements Runnable {
         ByteBuffer key = ByteBuffer.wrap(requestPacket.getKeyBytes());
 
         // TODO: Check if it does reference check for fetching kv or key bytes match
-        byte[] value = storeKeyValue.get(key).array();
+        byte[] value = new byte[0];
+        ByteBuffer bufferValue = storeKeyValue.get(key);
 
         logger.info("Received GetRequest from Client for Key: {}", new String(requestPacket.getKeyBytes()));
-        logger.info("Found Value in Map: {}", new String(value));
+
+        if (bufferValue != null) {
+            value = bufferValue.array();
+            logger.info("Fetched Value in Map: {}", new String(value));
+        } else {
+            logger.info("NO Key in Map to GET: {}", new String(requestPacket.getKeyBytes()));
+        }
 
         GetResponse getResponse = new GetResponse(value, 0);
         PDU responsePdu = getResponse.getPdu();
@@ -115,7 +123,7 @@ public class SessionWorker implements Runnable {
         logger.info("Received UpdateRequest from Client for Key: {} & Value: {}", new String(requestPacket.getKeyBytes()), new String(updateRequest.getValueBytes()));
         logger.info("Updated Key:Value in Map");
 
-        ByteBuffer prevValue = storeKeyValue.update(key, value);
+        ByteBuffer prevValue = storeKeyValue.put(key, value);
 
         UpdateResponse updateResponse = new UpdateResponse(0);
         PDU responsePdu = updateResponse.getPdu();
@@ -129,12 +137,20 @@ public class SessionWorker implements Runnable {
     private void handleDeleteRequest(OutputStream outputStream, PDU receivedPdu) throws IOException {
 
         RequestPacket requestPacket = (RequestPacket) receivedPdu.getPduBase();
-        ByteBuffer key = ByteBuffer.wrap(requestPacket.getKeyBytes());
+        ByteBuffer bufferKey = ByteBuffer.wrap(requestPacket.getKeyBytes());
 
-        byte[] value = storeKeyValue.remove(key).array();
+        ByteBuffer bufferValue = storeKeyValue.remove(bufferKey);
+
+        byte[] value = new byte[0];
 
         logger.info("Received DeleteRequest from Client for Key: {}", new String(requestPacket.getKeyBytes()));
-        logger.info("Deleted Key in Map");
+
+        if (bufferValue != null) {
+            value = bufferValue.array();
+            logger.info("Found & Deleted Value in Map: {}", new String(value));
+        } else {
+            logger.info("NO Key in Map to DELETE: {}", new String(requestPacket.getKeyBytes()));
+        }
 
         DeleteResponse deleteResponse = new DeleteResponse(value, 0);
         PDU responsePdu = deleteResponse.getPdu();
