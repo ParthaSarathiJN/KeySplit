@@ -12,8 +12,6 @@ public class KeySplit {
 
     private static final Logger logger = LoggerFactory.getLogger(KeySplit.class);
 
-    public static ConcurrentHashMap<ByteBuffer, byte[]> keySplit = new ConcurrentHashMap<>();
-
     public static void main(String[] args) throws IOException {
 
         KeySplit keySplit = new KeySplit();

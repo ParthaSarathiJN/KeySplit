@@ -4,11 +4,8 @@ import io.github.ParthaSarathiJN.pdu.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class CreateRequest {
@@ -23,10 +20,10 @@ public class CreateRequest {
         this.outputStream = outputStream;
     }
 
-    public void sendGetRequest(Scanner scanner) throws IOException {
+    public void sendGetRequest(BufferedReader reader) throws IOException {
 
         logger.info("Enter GET Request Key: ");
-        String key = scanner.nextLine();
+        String key = reader.readLine();
 
         GetRequest getRequest = new GetRequest(key.getBytes());
         PDU requestPdu = getRequest.getPdu();
@@ -46,12 +43,12 @@ public class CreateRequest {
         logger.info("Received GetResponse from Server with Value: {}", new String(getResponse.getValueBytes()));
     }
 
-    public void sendInsertRequest(Scanner scanner) throws IOException {
+    public void sendInsertRequest(BufferedReader reader) throws IOException {
 
         logger.info("Enter INSERT Request Key: ");
-        String key = scanner.nextLine();
+        String key = reader.readLine();
         logger.info("Enter INSERT Request Value: ");
-        String value = scanner.nextLine();
+        String value = reader.readLine();
 
         InsertRequest insertRequest = new InsertRequest(key.getBytes(), value.getBytes());
         PDU requestPdu = insertRequest.getPdu();
@@ -71,12 +68,12 @@ public class CreateRequest {
         logger.info("Received InsertResponse from Server with Status: {}", responsePacket.getStatus());
     }
 
-    public void sendUpdateRequest(Scanner scanner) throws IOException {
+    public void sendUpdateRequest(BufferedReader reader) throws IOException {
 
         logger.info("Enter UPDATE Request Key: ");
-        String key = scanner.nextLine();
+        String key = reader.readLine();
         logger.info("Enter UPDATE Request Value: ");
-        String value = scanner.nextLine();
+        String value = reader.readLine();
 
         UpdateRequest updateRequest = new UpdateRequest(key.getBytes(), value.getBytes());
         PDU requestPdu = updateRequest.getPdu();
@@ -97,10 +94,10 @@ public class CreateRequest {
 
     }
 
-    public void sendDeleteRequest(Scanner scanner) throws IOException {
+    public void sendDeleteRequest(BufferedReader reader) throws IOException {
 
         logger.info("Enter DELETE Request Key: ");
-        String key = scanner.nextLine();
+        String key = reader.readLine();
 
         DeleteRequest deleteRequest = new DeleteRequest(key.getBytes());
         PDU requestPdu = deleteRequest.getPdu();

@@ -153,9 +153,6 @@ public class AsyncSessionWorker implements Runnable {
 
     public void insertResponseToQueue(SocketChannel socketChannel, ByteBuffer responseBuffer) {
         ChannelResponse channelResponse = new ChannelResponse(socketChannel, responseBuffer);
-
-        synchronized (messageQueue) {
-            messageQueue.add(channelResponse);
-        }
+        messageQueue.add(channelResponse);
     }
 }

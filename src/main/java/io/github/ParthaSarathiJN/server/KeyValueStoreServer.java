@@ -13,7 +13,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,7 +26,7 @@ public class KeyValueStoreServer {
     private final StoreKeyValue storeKeyValue;
     private Selector selector;
     private ServerSocketChannel serverChannel;
-    static Queue<ChannelResponse> messageQueue = new ArrayBlockingQueue<>(1000);
+    static Queue<ChannelResponse> messageQueue = new ConcurrentLinkedQueue<>();
 
     public KeyValueStoreServer(int applicationPort, int threadPoolSize) {
         this.threadPool = Executors.newFixedThreadPool(threadPoolSize);
@@ -48,7 +48,7 @@ public class KeyValueStoreServer {
             logger.info("Starting server socket on port: {}", applicationPort);
 
             while (true) {
-                selector.select(1000);
+                selector.selectNow();
                 processReadyKeys(selector.selectedKeys().iterator());
                 processPendingResponses();
             }
@@ -130,6 +130,11 @@ public class KeyValueStoreServer {
 
             // TODO Need to check for partial messages not fully present in channel, extra long message not able to be
             //  written to buffer in one go
+            // TODO For now reading only single message in each readFromChannel method, need to read multiple msgs if
+            //  they are present in buffer at once
+
+            logger.info("Buffer size: {}", buffer.remaining());
+
             if (buffer.remaining() >= messageLength) {
                 ByteBuffer messageBuffer = ByteBuffer.allocate(messageLength);
                 buffer.get(messageBuffer.array(), 0, messageLength);
@@ -161,24 +166,18 @@ public class KeyValueStoreServer {
 
     private void processPendingResponses() {
 
-        synchronized (messageQueue) {
+        ChannelResponse channelResponse;
 
-//            logger.error("messageQueue size: {}", messageQueue.size());
-            while (!messageQueue.isEmpty()) {
+//      logger.error("messageQueue size: {}", messageQueue.size());
+        while ((channelResponse = messageQueue.poll()) != null) {
 
-                ChannelResponse channelResponse = messageQueue.remove();
+            SocketChannel clientChannel = channelResponse.getSocketChannel();
+            ByteBuffer responseBuffer = channelResponse.getResponseBuffer();
+            SelectionKey selectedKey = clientChannel.keyFor(selector);
 
-                if (channelResponse != null) {
-
-                    SocketChannel clientChannel = channelResponse.getSocketChannel();
-                    ByteBuffer responseBuffer = channelResponse.getResponseBuffer();
-                    SelectionKey selectedKey = clientChannel.keyFor(selector);
-
-                    if (selectedKey != null && selectedKey.isValid()) {
-                        selectedKey.interestOps(SelectionKey.OP_WRITE);
-                        selectedKey.attach(responseBuffer);
-                    }
-                }
+            if (selectedKey != null && selectedKey.isValid()) {
+                selectedKey.interestOps(SelectionKey.OP_WRITE);
+                selectedKey.attach(responseBuffer);
             }
         }
     }

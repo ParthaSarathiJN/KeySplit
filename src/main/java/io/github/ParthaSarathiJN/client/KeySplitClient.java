@@ -3,13 +3,9 @@ package io.github.ParthaSarathiJN.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.Properties;
-import java.util.Scanner;
 
 public class KeySplitClient {
 
@@ -35,8 +31,6 @@ public class KeySplitClient {
         int serverPort = properties[0];
 
         logger.info("Fetched Properties from Properties file!");
-
-        Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
         connectionOperations = new ConnectionOperations();
@@ -51,20 +45,21 @@ public class KeySplitClient {
 
                 System.out.println("\nChoose an operation:\n1. GET\n2. INSERT\n3. UPDATE\n4. DELETE");
 
-                String choice = scanner.nextLine();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                String choice = reader.readLine();
 
                 switch (choice) {
                     case "1":
-                        createRequest.sendGetRequest(scanner);
+                        createRequest.sendGetRequest(reader);
                         break;
                     case "2":
-                        createRequest.sendInsertRequest(scanner);
+                        createRequest.sendInsertRequest(reader);
                         break;
                     case "3":
-                        createRequest.sendUpdateRequest(scanner);
+                        createRequest.sendUpdateRequest(reader);
                         break;
                     case "4":
-                        createRequest.sendDeleteRequest(scanner);
+                        createRequest.sendDeleteRequest(reader);
                         break;
                     default:
                         logger.info("Exiting Client Instance...");

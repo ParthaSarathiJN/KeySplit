@@ -22,4 +22,9 @@ public class Constants {
     public static final byte UTF_64_ENC = 4;
     public static final byte ISO_8859_1_ENC = 5;
     public static final byte BINARY_ENC = 6;
+
+    public static final byte TOTAL_PDU_PARTS = 1;
+    public static final byte CURRENT_PDU_PART = 2;
+
+    public static final int PDU_SIZE = 1000;
 }
